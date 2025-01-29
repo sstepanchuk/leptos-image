@@ -17,10 +17,10 @@ pub fn Image(
     #[prop(into)]
     src: String,
     /// Resize image height (final image), maintains aspect ratio relative to `width`.
-    #[prop(optional)]
+    #[prop(into, optional)]
     height: MaybeProp<u32>,
     /// Resize image width (final image), maintains aspect ratio relative to `height`.
-    #[prop(optional)]
+    #[prop(into, optional)]
     width: MaybeProp<u32>,
     /// Image quality (0-100).
     #[prop(default = 100_u8)]
@@ -176,9 +176,9 @@ fn CacheImage(
     priority: bool,
     lazy: bool,
     // Passed down to maintain the final layout from the start
-    #[prop(optional)]
+    #[prop(into, optional)]
     width: MaybeProp<u32>,
-    #[prop(optional)]
+    #[prop(into, optional)]
     height: MaybeProp<u32>,
 ) -> impl IntoView {
     // Construct background SVG or request URL
