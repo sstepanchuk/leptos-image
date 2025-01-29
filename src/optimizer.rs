@@ -163,15 +163,17 @@ where
             height,
             quality,
         }) => {
-            let img = image::open(source_path)?;
-            let new_img = img.resize(
-                width,
-                height,
-                // Cubic Filter.
-                image::imageops::FilterType::CatmullRom,
-            );
+            let mut img = image::open(source_path)?;
+            if width.is_some() && height.is_some() {
+                img = img.resize(
+                    width.unwrap(),
+                    height.unwrap(),
+                    // Cubic Filter.
+                    image::imageops::FilterType::CatmullRom,
+                );
+            }
             // Create the WebP encoder for the above image
-            let encoder: Encoder = Encoder::from_image(&new_img).unwrap();
+            let encoder: Encoder = Encoder::from_image(&img).unwrap();
             // Encode the image at a specified quality 0-100
             let webp: WebPMemory = encoder.encode(quality as f32);
             create_nested_if_needed(&save_path)?;
@@ -244,11 +246,16 @@ pub struct CachedImage {
 impl std::fmt::Display for CachedImage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.option {
-            CachedImageOption::Resize(resize) => write!(
-                f,
-                "ImageResize {} ({}x{} @ {}% quality)",
-                self.src, resize.width, resize.height, resize.quality,
-            ),
+            CachedImageOption::Resize(resize) => {
+                let width = resize.width.map_or("auto".to_string(), |w| w.to_string());
+                let height = resize.height.map_or("auto".to_string(), |h| h.to_string());
+
+                write!(
+                    f,
+                    "ImageResize {} ({}x{} @ {}% quality)",
+                    self.src, width, height, resize.quality
+                )
+            }
             CachedImageOption::Blur(_) => write!(f, "ImageBlur {}", self.src),
         }
     }
@@ -266,9 +273,9 @@ pub(crate) enum CachedImageOption {
 #[serde(rename = "r")]
 pub(crate) struct Resize {
     #[serde(rename = "w")]
-    pub width: u32,
+    pub width: Option<u32>,
     #[serde(rename = "h")]
-    pub height: u32,
+    pub height: Option<u32>,
     #[serde(rename = "q")]
     pub quality: u8,
 }
@@ -390,8 +397,8 @@ mod optimizer_tests {
             src: "test.jpg".to_string(),
             option: CachedImageOption::Resize(Resize {
                 quality: 75,
-                width: 100,
-                height: 100,
+                width: Some(100),
+                height: Some(100),
             }),
         };
 
@@ -470,8 +477,8 @@ mod optimizer_tests {
             src: TEST_IMAGE.to_string(),
             option: CachedImageOption::Resize(Resize {
                 quality: 75,
-                width: 100,
-                height: 100,
+                width: Some(100),
+                height: Some(100),
             }),
         };
 

@@ -17,11 +17,13 @@ pub fn Image(
     #[prop(into)]
     src: String,
     /// Resize image height (final image), maintains aspect ratio relative to `width`.
-    height: u32,
+    #[prop(optional)]
+    height: MaybeProp<u32>,
     /// Resize image width (final image), maintains aspect ratio relative to `height`.
-    width: u32,
+    #[prop(optional)]
+    width: MaybeProp<u32>,
     /// Image quality (0-100).
-    #[prop(default = 75_u8)]
+    #[prop(default = 100_u8)]
     quality: u8,
     /// Whether to add a blur placeholder before the real image loads.
     #[prop(default = true)]
@@ -48,8 +50,8 @@ pub fn Image(
                 src=src
                 alt=alt
                 class=class.get()
-                width=width
-                height=height
+                width=width.get()
+                height=height.get()
                 decoding="async"
                 loading=loading
             />
@@ -73,8 +75,8 @@ pub fn Image(
         src: src.clone(),
         option: CachedImageOption::Resize(Resize {
             quality,
-            width,
-            height,
+            width: width.get(),
+            height: height.get(),
         }),
     });
 
@@ -87,8 +89,11 @@ pub fn Image(
             view! {
                 // If you prefer, you could do a placeholder gray box, spinner, etc.
                 <div style=move || {
-                    format!("width: {}px; height: {}px; background-color: #f0f0f0;", width, height)
-                } />
+                    let width_str = width.get().map(|w| format!("width: {}px;", w)).unwrap_or_default();
+                    let height_str = height.get().map(|h| format!("height: {}px;", h)).unwrap_or_default();
+
+                    format!("{} {} background-color: #f0f0f0;", width_str, height_str)
+                }/>
             }
         }>
             // Once the resource is ready, we show the real or blurred image
@@ -138,8 +143,8 @@ pub fn Image(
                                     src=opt_image_url
                                     alt=alt.get_value()
                                     class=move || class.get()
-                                    width=width
-                                    height=height
+                                    width=width.get()
+                                    height=height.get()
                                     decoding="async"
                                     loading=loading
                                 />
@@ -171,8 +176,10 @@ fn CacheImage(
     priority: bool,
     lazy: bool,
     // Passed down to maintain the final layout from the start
-    width: u32,
-    height: u32,
+    #[prop(optional)]
+    width: MaybeProp<u32>,
+    #[prop(optional)]
+    height: MaybeProp<u32>,
 ) -> impl IntoView {
     // Construct background SVG or request URL
     let background_image = match svg {
@@ -207,8 +214,8 @@ fn CacheImage(
             class=move || class.get()
             decoding="async"
             loading=loading
-            width=width
-            height=height
+            width=width.get()
+            height=height.get()
             style=style
         />
     }

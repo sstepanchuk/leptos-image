@@ -51,9 +51,7 @@ pub(crate) fn use_image_cache_resource() -> Resource<ImageConfig> {
 
 #[server(GetImageCache)]
 pub(crate) async fn get_image_config() -> Result<ImageConfig, ServerFnError> {
-    tracing::info!("1");
     let optimizer = use_optimizer()?;
-    tracing::info!("2");
 
     let cache = optimizer
         .cache
@@ -71,7 +69,6 @@ pub(crate) async fn get_image_config() -> Result<ImageConfig, ServerFnError> {
 
 #[cfg(feature = "ssr")]
 pub(crate) fn use_optimizer() -> Result<crate::ImageOptimizer, ServerFnError> {
-    tracing::debug!("Calling use_optimizer");
     use_context::<crate::ImageOptimizer>()
         .ok_or_else(|| ServerFnError::ServerError("Image Optimizer Missing.".into()))
 }
