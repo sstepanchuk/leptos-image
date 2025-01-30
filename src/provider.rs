@@ -25,7 +25,6 @@ pub fn provide_image_context() {
     let resource: Resource<ImageConfig> = Resource::new_blocking(
         || (),
         |_| async {
-            log!("Calling");
             get_image_config()
                 .await
                 .expect("Failed to retrieve image cache")
