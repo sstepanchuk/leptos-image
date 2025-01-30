@@ -40,7 +40,7 @@ ssr = [
     "dep:tracing", "dep:dashmap", "dep:thiserror"
 ]
 hydrate = [ "dep:web-sys","leptos/hydrate" ]
-default = ["ssr"]
+#default = ["ssr"]
 
 [dev-dependencies]
 leptos_axum = "0.7.4"
